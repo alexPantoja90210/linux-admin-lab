@@ -19,6 +19,28 @@ Problems hit while building the lab, with root cause and fix. Each one is a patt
 
 ## Host
 
+### Counterfeit external "SSD": 1 TB declared, 64 GB real
+
+Context: freeing ~99 GB on the host by moving screen recordings to an external USB "SSD" before deleting the originals.
+
+- **Symptoms:**
+  - First copy (exFAT): the drive disconnected repeatedly; Windows then offered "scan and repair", which hung for hours.
+  - Second copy (reformatted as NTFS): robocopy failed with `ERROR 1392 (0x00000570) The file or directory is corrupted and unreadable` on folders written early in the copy.
+  - Write speed around 11 MB/s.
+- **Evidence:**
+  - `Get-PhysicalDisk`: `FriendlyName: SSD 3.0`, `BusType: USB`, `MediaType: Unspecified`, 977 GB. No vendor, generic name.
+  - System event log: `disk` event 11 (*controller error*) on `\Device\Harddisk2\DR59`, `DR60`, then `Harddisk1\DR1`. The changing DR number means the device kept dropping and re-enumerating.
+  - `Ntfs` event 55: corrupted `$I30:$INDEX_ALLOCATION` on directories that had been written correctly earlier, with no controller errors at that time.
+  - The drive shipped with a USB 2 cable, which limits speed and power regardless of the host port.
+  - [ValiDrive](https://www.grc.com/validrive.htm) report: **declared 1,048,576,000,000 bytes (1.05 TB), validated 63,826,366,464 bytes (63.8 GB)**; vendor field empty, product `ssd_3.0`.
+- **Cause:** a 64 GB flash chip with firmware that reports 1 TB. Writes past the real capacity wrap around and silently overwrite data stored earlier, which corrupts file system metadata. Reformatting cannot fix it.
+- **What prevented data loss:** the copy script verified every file on the destination before anything was deleted, and the cleanup script only deletes files whose backup matches. The originals were never touched.
+- **Rules:**
+  - Validate any new external drive with ValiDrive (minutes) or H2testw (hours) before trusting it with data.
+  - Never delete originals until the backup is verified, ideally by hash.
+  - Corruption on two different file systems points to hardware, not formatting.
+  - Read the system event log (`Get-WinEvent`, providers `disk`, `Ntfs`) before guessing.
+
 ### Install failed: `PvCreate` lvmdbus timeout
 
 - **Symptom:** `Failed to call the 'PvCreate' method on the '/com/redhat/lvmdbus1/Manager' object: Timeout was reached`.
