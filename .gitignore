@@ -1,0 +1,16 @@
+# Installation media and VM artifacts never go in the repo
+*.iso
+*.crdownload
+*.vdi
+*.vmdk
+*.vhd
+*.vhdx
+*.vbox
+*.vbox-prev
+*.sav
+Logs/
+
+# Local notes and secrets
+*.log
+.env
+secrets/
