@@ -34,6 +34,7 @@ IP addresses come from DHCP and can change. Static addressing with `nmcli` is pa
 | [`docs/jira-project.md`](docs/jira-project.md) | How the lab is tracked in Jira, and Jira administration lessons |
 | [`docs/sprints/`](docs/sprints/) | Sprint logs: goal, work items, retrospective |
 | [`docs/study/`](docs/study/) | Exam objective self-assessments |
+| [`docs/runbooks/`](docs/runbooks/) | Step-by-step procedures from each lab exercise |
 | [`scripts/new-template-vm.ps1`](scripts/new-template-vm.ps1) | Creates a VM ready to install from a boot ISO |
 | [`scripts/new-linked-clones.ps1`](scripts/new-linked-clones.ps1) | Creates linked clones from a template snapshot |
 | [`scripts/generalize-clone.sh`](scripts/generalize-clone.sh) | Gives a fresh clone its own identity (hostname, machine-id, subscription) |
