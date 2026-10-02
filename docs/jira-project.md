@@ -27,7 +27,7 @@ A dedicated issue type scheme, `LNX: Issue Type Scheme`, keeps these changes awa
 
 ## Workflow
 
-All work types use **`LNX: Lab Workflow`** through the project's own workflow scheme (used only by LNX), which also covers *All Unassigned Issue Types*, so new work types get it automatically.
+All work types use **`LNX: Lab Workflow`** through the workflow scheme **`LNX: Workflow Scheme`** (used only by LNX), which also covers *All Unassigned Issue Types*, so new work types get it automatically.
 
 ```mermaid
 stateDiagram-v2
