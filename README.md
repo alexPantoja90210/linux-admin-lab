@@ -11,8 +11,8 @@ Windows 11 host (Ryzen 7 5700U, 16 GB RAM)
 └── VirtualBox 7.2.20  (running on top of Hyper-V, see ADR 0001)
     └── NAT Network "labnet"  10.10.10.0/24, gateway 10.10.10.1, DHCP
         ├── rhel10-template   RHEL 10.2 minimal   snapshot: base   (golden image, never booted after cloning)
-        │   ├── node1         linked clone        10.10.10.3
-        │   └── node2         linked clone        10.10.10.4
+        │   ├── node1         linked clone        10.10.10.3   ssh 127.0.0.1:2221   + 2 x 2 GB practice disks
+        │   └── node2         linked clone        10.10.10.4   ssh 127.0.0.1:2222
         └── rhel9-template    RHEL 9.8 minimal    snapshot: base   (source for the RHEL 9 -> 10 upgrade lab)
 ```
 
@@ -22,7 +22,7 @@ Windows 11 host (Ryzen 7 5700U, 16 GB RAM)
 | `node1`, `node2` | RHEL 10.2 | 2 | 2 GB | Linked clone | Exam objectives, clustering, patching |
 | `rhel9-template` | RHEL 9.8 | 2 | 2 GB | 20 GB dynamic | Leapp in-place upgrade practice |
 
-IP addresses come from DHCP and can change. Static addressing with `nmcli` is part of the roadmap.
+IP addresses come from DHCP and can change. Static addressing with `nmcli` is part of the roadmap. The VMs are reached from Windows over SSH through NAT Network port forwarding (see [lab setup](docs/lab-setup.md#8-ssh-from-windows)).
 
 ## Repository layout
 

@@ -151,6 +151,76 @@ ping -c 3 8.8.8.8                          # ICMP to the internet
 
 `redhat.com` drops ICMP, so it is not a valid ping target.
 
+## 8. SSH from Windows
+
+The VirtualBox console cannot paste text, so day-to-day work is done over SSH from the host. `labnet` is a NAT Network, so the host cannot reach `10.10.10.x` directly; port forwarding maps a local port on the host to port 22 of each VM. Rules bind to `127.0.0.1` only, so nothing else on the home network can reach the VMs.
+
+```powershell
+$vbm = "C:\Program Files\Oracle\VirtualBox\VBoxManage.exe"
+& $vbm natnetwork modify --netname labnet --port-forward-4 "node1-ssh:tcp:[127.0.0.1]:2221:[10.10.10.3]:22"
+& $vbm natnetwork modify --netname labnet --port-forward-4 "node2-ssh:tcp:[127.0.0.1]:2222:[10.10.10.4]:22"
+& $vbm natnetwork list
+```
+
+| VM | Host endpoint | Guest |
+|---|---|---|
+| node1 | `127.0.0.1:2221` | `10.10.10.3:22` |
+| node2 | `127.0.0.1:2222` | `10.10.10.4:22` |
+
+Add the hosts to `%USERPROFILE%\.ssh\config` so `ssh node1` works:
+
+```
+Host node1
+    HostName 127.0.0.1
+    Port 2221
+    User apantoja
+
+Host node2
+    HostName 127.0.0.1
+    Port 2222
+    User apantoja
+```
+
+PuTTY does not read this file: save one session per VM with host `127.0.0.1` and the port above.
+
+Start the VMs without a console window:
+
+```powershell
+& $vbm startvm node1 --type headless
+& $vbm startvm node2 --type headless
+```
+
+The forwarding rules point to the DHCP addresses. If a VM gets a different address, SSH to it fails; check with `ip -4 -br addr` on the console and update the rule. Static addressing is planned in W03 (LNX-30).
+
+## 9. Practice disks
+
+The storage labs destroy and rebuild disks, so `node1` has two empty 2 GB disks next to the system disk, and a snapshot taken right after attaching them. Restoring `pre-storage` returns both disks to empty.
+
+```powershell
+foreach ($d in "disk1","disk2") {
+  & $vbm createmedium disk --filename "C:\VMs\node1\node1-$d.vdi" --size 2048 --format VDI --variant Standard
+}
+& $vbm storagectl node1 --name SATA --portcount 4
+& $vbm storageattach node1 --storagectl SATA --port 2 --device 0 --type hdd --medium "C:\VMs\node1\node1-disk1.vdi"
+& $vbm storageattach node1 --storagectl SATA --port 3 --device 0 --type hdd --medium "C:\VMs\node1\node1-disk2.vdi"
+& $vbm snapshot node1 take pre-storage --description "Two empty 2 GB practice disks attached"
+```
+
+Result on `node1`:
+
+```
+sda                              8:0    0   20G  0 disk
+├─sda1                           8:1    0  600M  0 part /boot/efi
+├─sda2                           8:2    0    2G  0 part /boot
+└─sda3                           8:3    0 17.4G  0 part
+  ├─rhel_rhel10--template-root 253:0    0 15.4G  0 lvm  /
+  └─rhel_rhel10--template-swap 253:1    0    2G  0 lvm  [SWAP]
+sdb                              8:16   0    2G  0 disk
+sdc                              8:32   0    2G  0 disk
+```
+
+`sda` is the system disk and is never used in exercises. Its volume group keeps the template's name (`rhel_rhel10-template`) because clones copy the disk as is.
+
 ## Measured results
 
 | Metric | Value |
