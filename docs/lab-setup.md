@@ -221,6 +221,23 @@ sdc                              8:32   0    2G  0 disk
 
 `sda` is the system disk and is never used in exercises. Its volume group keeps the template's name (`rhel_rhel10-template`) because clones copy the disk as is.
 
+### Resetting the practice disks
+
+After each storage exercise, or when something breaks:
+
+1. On `node1`: `sudo poweroff`.
+2. VirtualBox Manager > `node1` > **Snapshots** tab (*Instantáneas* in the Spanish UI) > select `pre-storage` > **Restore** (*Restaurar*). Restore is disabled while the VM is running.
+3. Answer **No** to "create a snapshot of the current state", unless the current state is worth keeping.
+4. Start `node1`; `sdb` and `sdc` are empty again.
+
+Or from PowerShell, with the VM powered off:
+
+```powershell
+& $vbm snapshot node1 restore pre-storage
+```
+
+"Current State (modified)" under a snapshot only means the VM has changed since the snapshot was taken; any boot does that.
+
 ## Measured results
 
 | Metric | Value |
