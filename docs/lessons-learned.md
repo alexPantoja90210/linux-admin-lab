@@ -77,6 +77,16 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** the user was created in the installer without **Make this user administrator**, so it is not in the `wheel` group.
 - **Fix:** as root, `usermod -aG wheel apantoja`, then log in again. The `-a` matters: without it `-G` replaces all supplementary groups.
 
+## Storage
+
+### Disk names changed between boots
+
+- **Symptom:** on one boot `lsblk` showed the system disk as `sda` and the practice disks as `sdb` and `sdc`. On the next boot `/boot` was on `/dev/sdc2`: the system disk had become `sdc`.
+- **Cause:** `sdX` names are assigned in the order the kernel detects the disks, which is not guaranteed to be the same on every boot (here, under Hyper-V with three disks on one SATA controller).
+- **Rules:**
+  - Before any destructive command (`parted`, `mkfs`, `pvcreate`, `wipefs`), run `lsblk` and identify the disk by size and content, not by name. In this lab the practice disks are 2 GB and empty; the system disk is 20 GB with `/boot` and LVM.
+  - Never use `/dev/sdX` in `/etc/fstab`. Use `UUID=` or `LABEL=`, which belong to the file system and do not change when the device name does.
+
 ## Network testing
 
 ### `ping redhat.com` showed 100% loss
