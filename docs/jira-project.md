@@ -156,6 +156,7 @@ status = Blocked OR (issueLinkType = "is blocked by" AND statusCategory != Done)
 - When a workflow scheme replaces statuses that work items are using, Jira asks to map every old status to a new one, **per work type**. In this site every dropdown defaulted to `Done`; accepting the defaults would have closed every open item. Check each mapping before clicking *Associate*.
 - The migration itself is fast (4 seconds for about 40 work items).
 - Workflows and schemes copied from Jira's defaults keep the description *"managed internally by Jira. Do not manually modify"*. Once customized, rewrite the name and description so they describe what the scheme really does.
+- A workflow's **name cannot be changed while it is active** (used by a scheme that a project uses); only its description can. Choose the final workflow name before publishing. A workflow scheme can be renamed at any time.
 
 ### Board columns after a workflow change
 
