@@ -111,12 +111,21 @@ Size forms for `-l`:
 sudo pvs            # PFree per PV shows where the space went
 sudo vgs vg_lab
 sudo lvs vg_lab
-sudo pvdisplay -m   # segment map: which extents of which PV each LV uses
+sudo lvs -o +devices  # PV and starting extent of each LV
+sudo pvdisplay -m     # segment map: which extents of which PV each LV uses
 lsblk
 df -hT /data /logs
 ```
 
-Observed: both LVs were allocated entirely on the first PV given to `vgcreate` (`/dev/sdA`, 240 MiB left), and the partition PV stayed unused (`PFree` 1016 MiB). LVM fills PVs in order and only spans to the next one when the first runs out.
+Observed: both LVs were allocated entirely on the first PV given to `vgcreate` (`/dev/sdA`, 240 MiB left), and the partition PV stayed unused (`PFree` 1016 MiB).
+
+LVM does not simply fill PVs in order. With the default `normal` allocation policy, a new LV is placed on a single PV that can hold it whole whenever one exists. In LNX-39, a 256 MiB (32-extent) LV did not fit in the 30 extents left on `/dev/sdA`, so LVM put all of it on `/dev/sdB1` instead of splitting it. `lvs -o +devices` shows the PV and starting extent of every LV:
+
+```
+lv_data  1.17g   /dev/sdA(0)
+lv_logs  600.00m /dev/sdA(150)
+lv_swap  256.00m /dev/sdB1(0)
+```
 
 ## Shrinking: XFS cannot, ext4 can (unmounted)
 
