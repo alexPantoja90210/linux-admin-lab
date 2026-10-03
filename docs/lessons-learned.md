@@ -87,6 +87,15 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
   - Before any destructive command (`parted`, `mkfs`, `pvcreate`, `wipefs`), run `lsblk` and identify the disk by size and content, not by name. In this lab the practice disks are 2 GB and empty; the system disk is 20 GB with `/boot` and LVM.
   - Never use `/dev/sdX` in `/etc/fstab`. Use `UUID=` or `LABEL=`, which belong to the file system and do not change when the device name does.
 
+### Stray `$` in an `fstab` line
+
+- **Symptom:** `findmnt --verify` reported `[E] unsupported source tag: =d3cfceb6-...` and `swapon -a` failed with `cannot open =d3cfceb6-...`.
+- **Cause:** the line was written with `echo "$UUID=$P_UUID none swap ..."`. Inside double quotes the shell expanded `$UUID` as a variable; it was not set, so it became an empty string and the line started with `=` instead of `UUID=`.
+- **Fix:** `sudo sed -i 's/^=/UUID=/' /etc/fstab`, then `findmnt --verify` again.
+- **Rules:**
+  - Read the line back (`tail /etc/fstab`) after appending it, before anything else.
+  - Always run `findmnt --verify` and `mount -a` / `swapon -a` before rebooting. Here they caught the error with the system still up; after a reboot, a bad mount line can stop the boot.
+
 ## Network testing
 
 ### `ping redhat.com` showed 100% loss
