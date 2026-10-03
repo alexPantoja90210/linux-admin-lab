@@ -221,6 +221,14 @@ sdc                              8:32   0    2G  0 disk
 
 `sda` is the system disk and is never used in exercises. Its volume group keeps the template's name (`rhel_rhel10-template`) because clones copy the disk as is.
 
+### Snapshots
+
+| VM | Snapshot | State |
+|---|---|---|
+| node1 | `pre-storage` | Two empty practice disks attached |
+| node1 | `post-swap` | After LNX-37 to LNX-39: `vg_lab` with `lv_data`, `lv_logs`, `lv_swap`, swap partition |
+| node2 | `pre-nfs` | Before the NFS server lab (LNX-40) |
+
 ### Resetting the practice disks
 
 After each storage exercise, or when something breaks:
