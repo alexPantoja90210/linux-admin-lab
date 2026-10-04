@@ -46,7 +46,7 @@ Work is planned in one-week sprints and tracked in Jira (project `LNX`). Each we
 | Week | Linux | Status |
 |---|---|---|
 | W00 | Lab setup: VirtualBox, templates, linked clones, network | Done |
-| W01 | RHCSA: storage, partitions, LVM, persistent mounts | Planned |
+| W01 | RHCSA: storage, partitions, LVM, persistent mounts | In progress (Sprint 2) |
 | W02 | RHCSA: systemd, users and groups, permissions, SELinux | Planned |
 | W03 | RHCSA: networking with nmcli, firewalld, dnf, podman, boot recovery | Planned |
 | W04 | RHCSA mock exams and EX200 | Planned |

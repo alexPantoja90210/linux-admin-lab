@@ -6,6 +6,12 @@ Create PVs on a whole disk and on a partition, group them in a VG with a custom 
 - **Practised in:** LNX-38, on `node1`.
 - **Reset:** restore the `pre-storage` snapshot (see [lab setup](../lab-setup.md#resetting-the-practice-disks)).
 
+## Prerequisites
+
+- `node1` with two empty 2 GB practice disks (restore `pre-storage` if the partitions lab used them).
+- An SSH session as a user with `sudo`.
+- `lvm2` and `parted` are in the minimal install; check with `rpm -q lvm2 parted`.
+
 ## Layout built in the lab
 
 ```
@@ -140,15 +146,28 @@ sudo mount /logs
 
 Shrinking the LV without shrinking the file system first destroys data. Always use `-r`, or shrink the file system first by hand.
 
-## Removing (reverse order)
+## Rollback (reverse order)
+
+- **Whole exercise:** power off `node1` and restore `pre-storage`.
+- **By hand:** unmount, remove the `fstab` lines, then LVs, VG, PVs, partition.
 
 ```bash
-sudo umount /logs                      # and remove its fstab line
-sudo lvremove /dev/vg_lab/lv_logs
-sudo vgreduce vg_lab /dev/sdB1         # take a PV out of the VG (it must be empty)
-sudo pvremove /dev/sdB1
-# whole VG: remove all LVs, then: sudo vgremove vg_lab
+sudo umount /data /logs
+sudo sed -i '\|/dev/vg_lab/|d' /etc/fstab
+sudo systemctl daemon-reload
+sudo findmnt --verify
+sudo lvremove /dev/vg_lab/lv_data /dev/vg_lab/lv_logs
+sudo vgremove vg_lab
+sudo pvremove /dev/sdA /dev/sdB1
+sudo parted /dev/sdB rm 1
+sudo rmdir /data /logs
 ```
+
+To remove only one PV and keep the VG: `sudo vgreduce vg_lab /dev/sdB1` (the PV must be empty; `pvmove` moves extents off it first), then `sudo pvremove /dev/sdB1`.
+
+## Mistakes made
+
+- **Wrong assumption about allocation.** The first version of this runbook said LVM fills PVs in order. LNX-39 disproved it: a new LV goes whole onto a single PV when one can hold it. Corrected above. Check with `lvs -o +devices` instead of assuming.
 
 ## Quick reference
 

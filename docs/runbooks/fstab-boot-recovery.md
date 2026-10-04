@@ -11,6 +11,36 @@ A bad line in `/etc/fstab` can stop the boot and drop the system into emergency 
 - **Recovery happens on the console.** In emergency mode there is no network and no SSH. In VirtualBox, open the VM window (**Show**). The console cannot paste: commands are typed by hand.
 - **Take a snapshot** before changing storage or boot configuration.
 
+## Prerequisites for the drill
+
+- `node1` after the [LVM](lvm.md) and [NFS](nfs-autofs.md) runbooks: `/logs` (ext4) and `/mnt/shared` (NFS) are in `fstab`.
+- The VirtualBox console of `node1` open, and the root password known.
+- A snapshot: power off `node1` and take `pre-drill`.
+
+```powershell
+& $vbm snapshot node1 take pre-drill --description "Before the fstab boot drill (LNX-41)"
+```
+
+## Run the drill
+
+Do one case at a time: break, reboot, recover with the steps below, confirm `running`, then the next.
+
+```bash
+sudo cp -p /etc/fstab /etc/fstab.pre-drill
+
+# Case 1: a device that does not exist
+sudo mkdir -p /mnt/broken
+echo 'UUID=00000000-0000-0000-0000-000000000000  /mnt/broken  xfs  defaults  0 0' | sudo tee -a /etc/fstab
+sudo systemctl reboot
+
+# Case 2: a mistyped option on an existing mount
+sudo sed -i '\|/logs|s/defaults/defualts/' /etc/fstab
+grep /logs /etc/fstab
+sudo systemctl reboot
+```
+
+Watch the console: case 1 waits 1 min 30 s before emergency mode, case 2 fails at once.
+
 ## What a broken `fstab` looks like
 
 The screen ends with:
@@ -124,6 +154,24 @@ sudo mount -a
 | `umount` then `mount -a` | Caught | **Caught**: `Unknown parameter 'defualts'` |
 
 4. Use `nofail` for mounts the system does not need to boot (`defaults,nofail`): if the device is missing, the boot continues and the failure is only logged. Use `_netdev` for network file systems.
+
+## Rollback
+
+- **Recovery failed:** power off `node1` and restore `pre-drill`.
+- **After a successful recovery:** put the original file back and check it.
+
+```bash
+sudo cp -p /etc/fstab.pre-drill /etc/fstab
+sudo systemctl daemon-reload
+sudo findmnt --verify
+sudo rmdir /mnt/broken
+systemctl is-system-running        # running
+```
+
+## Mistakes made
+
+- **Trusted `findmnt --verify` too much.** In case 2 it reported 0 errors and `mount -a` stayed silent, because `/logs` was already mounted. Only `umount` + `mount -a` showed the bad option.
+- **Read the last `[FAILED]` line first.** It was the NFS mount both times, a side effect of emergency mode having no network. The cause was in `journalctl -xb`.
 
 ## Quick reference
 

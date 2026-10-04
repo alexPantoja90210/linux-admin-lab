@@ -87,6 +87,13 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
   - Before any destructive command (`parted`, `mkfs`, `pvcreate`, `wipefs`), run `lsblk` and identify the disk by size and content, not by name. In this lab the practice disks are 2 GB and empty; the system disk is 20 GB with `/boot` and LVM.
   - Never use `/dev/sdX` in `/etc/fstab`. Use `UUID=` or `LABEL=`, which belong to the file system and do not change when the device name does.
 
+### LVM does not fill physical volumes in order
+
+- **Symptom:** the LVM runbook said new LVs are allocated on the first PV until it is full. In LNX-39 a 256 MiB `lv_swap` went entirely onto the second PV, `/dev/sdB1`.
+- **Cause:** with the default `normal` allocation policy, LVM places a new LV on a single PV that can hold it whole when one exists. 32 extents did not fit in the 30 left on `/dev/sdA`, so it used `/dev/sdB1` instead of splitting the LV.
+- **Fix:** runbook corrected (commit 838ab07).
+- **Rule:** do not document how a tool behaves from one observation. Check where extents went with `lvs -o +devices` or `pvdisplay -m`.
+
 ### Stray `$` in an `fstab` line
 
 - **Symptom:** `findmnt --verify` reported `[E] unsupported source tag: =d3cfceb6-...` and `swapon -a` failed with `cannot open =d3cfceb6-...`.
