@@ -8,7 +8,7 @@ Source: [official EX200 objectives](https://www.redhat.com/en/services/training/
 |---|---|
 | Manage users and groups | Checked against the official page on 2026-10-04 |
 | Manage security | Checked against the official page on 2026-10-04 |
-| Operate running systems | **Draft**, written from memory: check before rating (LNX-43) |
+| Operate running systems | Checked against the official page on 2026-10-04 |
 | Deploy, configure, and maintain systems | **Draft**, written from memory: check before rating (LNX-43) |
 
 Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
@@ -71,7 +71,7 @@ Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 Listed so they are not lost; practised in W03 (LNX-4):
 
 - Configure firewall settings using firewall-cmd/firewalld (Manage security).
-- Interrupt the boot process in order to gain access to a system.
+- Interrupt the boot process in order to gain access to a system (Operate running systems).
 - Modify the system bootloader.
 - Install and update software packages; package repositories.
 - Networking, hostname resolution, containers.
