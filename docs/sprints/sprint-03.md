@@ -37,7 +37,7 @@ Ordered as they should be done. Each lab builds on the state left by the one bef
 
 ## Risks
 
-- The objective list in [the W02 self-assessment](../study/ex200-w02-objectives.md) was drafted without the official page; LNX-43 checks it first, and may add or move labs.
+- Users and security objectives were checked against the official page on 2026-10-04. The systemd, process, log and scheduling objectives in [the W02 self-assessment](../study/ex200-w02-objectives.md) are still a draft; LNX-43 checks them first, and may add or move labs.
 - GRUB editing (LNX-48) needs the VirtualBox console, which cannot paste.
 
 ## Retrospective

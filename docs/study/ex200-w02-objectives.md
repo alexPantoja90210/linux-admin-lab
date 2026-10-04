@@ -2,7 +2,14 @@
 
 Objectives for the RHCSA exam (EX200, RHEL 10) practised in W02: users and groups, security (except the firewall), and the systemd, process, log and scheduling objectives.
 
-> **Draft.** This list was written from memory of the EX200 objectives, without access to the Red Hat exam page. Before rating, check every line against the [official objectives](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam?section=objectives) and fix the wording (LNX-43).
+Source: [official EX200 objectives](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam?section=objectives).
+
+| Section | Wording |
+|---|---|
+| Manage users and groups | Checked against the official page on 2026-10-04 |
+| Manage security | Checked against the official page on 2026-10-04 |
+| Operate running systems | **Draft**, written from memory: check before rating (LNX-43) |
+| Deploy, configure, and maintain systems | **Draft**, written from memory: check before rating (LNX-43) |
 
 Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 
@@ -17,7 +24,7 @@ Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 | Create, delete, and modify local user accounts | | LNX-45 |
 | Change passwords and adjust password aging for local user accounts | | LNX-45 |
 | Create, delete, and modify local groups and group memberships | | LNX-45 |
-| Configure superuser access | | LNX-45 |
+| Configure privileged access | | LNX-45 |
 
 ## Manage security
 
@@ -31,7 +38,10 @@ Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 | Restore default file contexts | | LNX-50, LNX-51 |
 | Manage SELinux port labels | | LNX-50, LNX-51 |
 | Use Boolean settings to modify system SELinux settings | | LNX-50, LNX-51 |
-| Diagnose and address routine SELinux policy violations | | LNX-51 |
+
+- *Diagnose and correct file permission problems* is in the **Create and configure file systems** section of the exam; it is practised here because it fits with permissions.
+- *Configure firewall settings using firewall-cmd/firewalld* is in this section but practised in W03.
+- The RHEL 10 list has no separate objective for diagnosing SELinux policy violations. The drill (LNX-51) stays: it practises the three objectives above starting from a denial, which is how they show up in real work.
 
 ## Operate running systems
 
@@ -60,7 +70,7 @@ Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 
 Listed so they are not lost; practised in W03 (LNX-4):
 
-- Configure firewall settings using firewall-cmd/firewalld.
+- Configure firewall settings using firewall-cmd/firewalld (Manage security).
 - Interrupt the boot process in order to gain access to a system.
 - Modify the system bootloader.
 - Install and update software packages; package repositories.
