@@ -1,6 +1,6 @@
 # Sprint 3: RHCSA users, security and systemd
 
-- **Dates:** 2026-10-09 to 2026-10-16 (planned)
+- **Dates:** 2026-10-04 to 2026-10-11
 - **Goal:** Users, permissions, SSH keys, systemd and SELinux objectives practised and documented.
 - **Epic:** LNX-3 (W02)
 - **Planned:** 21 story points, 10 work items
@@ -24,9 +24,9 @@ Ordered as they should be done. Each lab builds on the state left by the one bef
 
 ## Before the sprint starts
 
-- Close Sprint 2 and re-rate the storage objectives.
+- Close Sprint 2 (all its items are resolved) so Sprint 3 can start; re-rate the storage objectives.
 - Fix LNX-36 (shows *Cancelled* although done; see [Sprint 2](sprint-02.md#jira-notes)).
-- Create **LNX Sprint 3** on the board, move LNX-43 to LNX-52 into it, and refine them to Ready.
+- Create **LNX Sprint 3** on the board (1 week, 2026-10-04 to 2026-10-11, goal as above), move LNX-43 to LNX-52 into it, and refine them to Ready.
 - Snapshots: `pre-w02` on node1 and node2 before LNX-45; `pre-selinux` on node2 before LNX-50.
 
 ## Scope decisions
