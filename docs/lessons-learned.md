@@ -77,6 +77,12 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** the user was created in the installer without **Make this user administrator**, so it is not in the `wheel` group.
 - **Fix:** as root, `usermod -aG wheel apantoja`, then log in again. The `-a` matters: without it `-G` replaces all supplementary groups.
 
+### Forced password change fails with "Authentication token manipulation error"
+
+- **Symptom:** after `chage -d 0 user1`, `su - user1` accepted the password, showed `You are required to change your password immediately`, then failed with `su: Authentication token manipulation error`, twice.
+- **Cause:** the forced change asks for the **current** password a second time (`Current password:`) before the new one. It was mistyped there.
+- **Rule:** read the prompt: `Current password:` is the old one, `New password:` the new one.
+
 ## Storage
 
 ### Disk names changed between boots

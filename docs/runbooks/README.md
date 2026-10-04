@@ -23,4 +23,10 @@ Run them in this order; each one builds on the state left by the previous one.
 | 4 | [NFS and autofs](nfs-autofs.md) | LNX-40 | node2 server, node1 client | node1 `post-swap`, node2 `pre-nfs` |
 | 5 | [Recover a boot broken by `fstab`](fstab-boot-recovery.md) | LNX-41 | node1 | `pre-drill` |
 
+## Users, security and systemd (Sprint 3, epic LNX-3)
+
+| Order | Runbook | Lab | VMs | Snapshot before |
+|---|---|---|---|---|
+| 1 | [Users, groups, password aging and sudo](users-and-groups.md) | LNX-45 | node1 | `pre-w02` |
+
 Snapshots are listed in [lab setup](../lab-setup.md#snapshots).

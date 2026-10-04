@@ -229,6 +229,7 @@ sdc                              8:32   0    2G  0 disk
 | node1 | `post-swap` | After LNX-37 to LNX-39: `vg_lab` with `lv_data`, `lv_logs`, `lv_swap`, swap partition |
 | node2 | `pre-nfs` | Before the NFS server lab (LNX-40) |
 | node1 | `pre-drill` | Before the `fstab` boot drill (LNX-41) |
+| node1, node2 | `pre-w02` | Before the W02 labs (LNX-45) |
 
 ### Resetting the practice disks
 
