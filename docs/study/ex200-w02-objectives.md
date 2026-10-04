@@ -2,7 +2,7 @@
 
 Objectives for the RHCSA exam (EX200, RHEL 10) practised in W02: users and groups, security (except the firewall), and the systemd, process, log and scheduling objectives.
 
-> **Draft.** This list was written from memory of the EX200 objectives, without access to the Red Hat exam page. Before rating, check every line against the official page and fix the wording (LNX-43).
+> **Draft.** This list was written from memory of the EX200 objectives, without access to the Red Hat exam page. Before rating, check every line against the [official objectives](https://www.redhat.com/en/services/training/ex200-red-hat-certified-system-administrator-rhcsa-exam?section=objectives) and fix the wording (LNX-43).
 
 Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 
