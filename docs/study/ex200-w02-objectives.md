@@ -9,7 +9,7 @@ Source: [official EX200 objectives](https://www.redhat.com/en/services/training/
 | Manage users and groups | Checked against the official page on 2026-10-04 |
 | Manage security | Checked against the official page on 2026-10-04 |
 | Operate running systems | Checked against the official page on 2026-10-04 |
-| Deploy, configure, and maintain systems | **Draft**, written from memory: check before rating (LNX-43) |
+| Deploy, configure, and maintain systems | Checked against the official page on 2026-10-04 |
 
 Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 
@@ -61,7 +61,7 @@ Ratings, as in the [storage self-assessment](ex200-storage-objectives.md):
 
 | Objective | Rating | Practised in |
 |---|---|---|
-| Schedule tasks using at and cron | | LNX-48 |
+| Schedule tasks using at, cron and systemd timer units | | LNX-48 |
 | Start and stop services and configure services to start automatically at boot | | LNX-48 |
 | Configure systems to boot into a specific target automatically | | LNX-48 |
 | Configure time service clients | | LNX-48 |
@@ -72,8 +72,8 @@ Listed so they are not lost; practised in W03 (LNX-4):
 
 - Configure firewall settings using firewall-cmd/firewalld (Manage security).
 - Interrupt the boot process in order to gain access to a system (Operate running systems).
-- Modify the system bootloader.
-- Install and update software packages; package repositories.
+- Modify the system bootloader (Deploy, configure, and maintain systems).
+- Install and update software packages from Red Hat Content Delivery Network, a remote repository, or from the local file system (Deploy, configure, and maintain systems).
 - Networking, hostname resolution, containers.
 
 ## Review after the sprint
