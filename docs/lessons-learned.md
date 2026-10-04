@@ -96,6 +96,27 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
   - Read the line back (`tail /etc/fstab`) after appending it, before anything else.
   - Always run `findmnt --verify` and `mount -a` / `swapon -a` before rebooting. Here they caught the error with the system still up; after a reboot, a bad mount line can stop the boot.
 
+### `findmnt --verify` does not check mount options
+
+- **Symptom:** `/logs` had `defualts` instead of `defaults` in `/etc/fstab`; `findmnt --verify` reported 0 errors, and `mount -a` reported nothing. The next boot went to emergency mode.
+- **Cause:** `findmnt --verify` checks syntax, devices and file system types, not file-system-specific options. `mount -a` skips file systems that are already mounted, so a changed line for a mounted file system is never tested.
+- **Rule:** after changing the line of a mounted file system, `umount` it and then `mount -a`. That surfaced `ext4: Unknown parameter 'defualts'` with the system still up.
+
+### The last `[FAILED]` on screen was not the cause
+
+- **Symptom:** in emergency mode the last error was `Failed to mount mnt-shared.mount` (NFS).
+- **Cause:** a local mount had failed first and sent the system to emergency mode, which does not start the network; the NFS mount then failed too.
+- **Rule:** read `journalctl -xb` for the first failure; do not trust the last line on the console.
+
+## VirtualBox
+
+### VM would not resume: `Failed to load unit 'vga'`
+
+- **Symptom:** node1 showed **Aborted-Saved**; starting it failed with `Failed to load unit 'vga' (VERR_SSM_DATA_UNIT_FORMAT_CHANGED)`.
+- **Cause:** the VM had a saved state (from closing its window with "Save the machine state") that could not be restored.
+- **Fix:** **Discard** the saved state (like pulling the power cord; disks are kept), then start the VM. The first boot after that hung in early kernel messages for over 10 minutes with one host thread at 100%; **Machine > Reset** fixed it and the next boot took seconds.
+- **Rule:** to close the console of a running VM, choose **Continue running in the background**, never "Save the machine state". Open it again with **Show**.
+
 ## Network testing
 
 ### `ping redhat.com` showed 100% loss
