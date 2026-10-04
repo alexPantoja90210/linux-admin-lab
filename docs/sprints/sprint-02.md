@@ -1,6 +1,6 @@
 # Sprint 2: RHCSA storage
 
-- **Dates:** 2026-10-02 to 2026-10-09
+- **Dates:** 2026-10-02 to 2026-10-04 (planned to 2026-10-09; closed early with every item resolved)
 - **Goal:** Storage objectives practised and documented.
 - **Committed:** 24 story points, 10 work items
 
@@ -41,7 +41,7 @@
 
 ## Jira notes
 
-- **LNX-36** is in status *Cancelled* with resolution *Won't Do*, although the work is done (commit bba6a47). It should be moved back with **Restore** and finished with **Finish** so it counts as done in the sprint report.
+- **LNX-36** was closed with the sprint in status *Cancelled* (resolution *Won't Do*), although the work is done (commit bba6a47). The sprint report counts it as completed, because Cancelled maps to the Done column, but its resolution is wrong. Lesson: check resolutions with `sprint = "LNX Sprint 2" AND resolution != Done` before completing a sprint.
 
 ## Open at sprint end
 

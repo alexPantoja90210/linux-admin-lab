@@ -11,7 +11,7 @@ Ordered as they should be done. Each lab builds on the state left by the one bef
 
 | Key | Work item | Type | Points | VM | Status |
 |---|---|---|---|---|---|
-| LNX-43 | Review EX200 W02 objectives and self-assess | Study | 1 | | Backlog |
+| LNX-43 | Review EX200 W02 objectives and self-assess | Study | 1 | | In Lab |
 | LNX-44 | Jira: custom fields and separate create / edit / transition screens | Task | 3 | | Backlog |
 | LNX-45 | Users and groups: accounts, password aging and sudo rules | Lab | 2 | node1 | Backlog |
 | LNX-46 | Permissions: umask, set-GID shared directory, diagnose permission problems | Lab | 2 | node1 | Backlog |
@@ -22,11 +22,10 @@ Ordered as they should be done. Each lab builds on the state left by the one bef
 | LNX-51 | Drill: diagnose and fix SELinux denials | Lab | 2 | node2 | Backlog |
 | LNX-52 | W02 runbooks in the repo | Task | 2 | | Backlog |
 
-## Before the sprint starts
+## Sprint start
 
-- Close Sprint 2 (all its items are resolved) so Sprint 3 can start; re-rate the storage objectives.
-- Fix LNX-36 (shows *Cancelled* although done; see [Sprint 2](sprint-02.md#jira-notes)).
-- Create **LNX Sprint 3** on the board (1 week, 2026-10-04 to 2026-10-11, goal as above), move LNX-43 to LNX-52 into it, and refine them to Ready.
+- Sprint 2 closed and **LNX Sprint 3** started on 2026-10-04, with LNX-43 to LNX-52.
+- Still to do: re-rate the storage objectives (carried over from [Sprint 2](sprint-02.md#open-at-sprint-end)).
 - Snapshots: `pre-w02` on node1 and node2 before LNX-45; `pre-selinux` on node2 before LNX-50.
 
 ## Scope decisions
