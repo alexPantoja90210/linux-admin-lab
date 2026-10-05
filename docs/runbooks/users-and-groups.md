@@ -253,7 +253,7 @@ Password expires                                        : never
     (root) /usr/bin/systemctl restart chronyd
 ```
 
-`user1`, `user2` and `team` are kept: the permissions lab (LNX-46) uses them.
+`user1`, `user2` and `team` are kept: the [permissions runbook](permissions.md) (LNX-46) uses them.
 
 ## Rollback
 

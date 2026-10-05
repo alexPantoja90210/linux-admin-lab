@@ -14,7 +14,7 @@ Ordered as they should be done. Each lab builds on the state left by the one bef
 | LNX-43 | Review EX200 W02 objectives and self-assess | Study | 1 | | Done |
 | LNX-44 | Jira: custom fields and separate create / edit / transition screens | Task | 3 | | In Lab |
 | LNX-45 | Users and groups: accounts, password aging and sudo rules | Lab | 2 | node1 | Done |
-| LNX-46 | Permissions: umask, set-GID shared directory, diagnose permission problems | Lab | 2 | node1 | Backlog |
+| LNX-46 | Permissions: umask, set-GID shared directory, diagnose permission problems | Lab | 2 | node1 | In Lab |
 | LNX-47 | SSH key-based authentication and secure file transfer between nodes | Lab | 1 | node1 → node2 | Backlog |
 | LNX-48 | systemd: services, boot targets, at, cron and timers, time service client | Lab | 3 | node1 | Backlog |
 | LNX-49 | Processes, tuning profiles, logs and persistent journal | Lab | 2 | node1 | Backlog |

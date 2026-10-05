@@ -83,6 +83,18 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** the forced change asks for the **current** password a second time (`Current password:`) before the new one. It was mistyped there.
 - **Rule:** read the prompt: `Current password:` is the old one, `New password:` the new one.
 
+### `sudo rm /dir/*` removed nothing
+
+- **Symptom:** `sudo rm -f /srv/team/*` returned no error, but the files were still there.
+- **Cause:** the `*` is expanded by the calling shell, running as the normal user, before `sudo` starts. That user cannot read `/srv/team` (mode `2770`, not in the group), so the glob matched nothing and `rm` got the literal path `/srv/team/*`; `-f` hid the "No such file" error.
+- **Rule:** when the directory is not readable by you, let root expand the glob: `sudo sh -c 'rm -f /srv/team/*'`.
+
+### Commands pasted after `su` never ran
+
+- **Symptom:** after pasting `su - user1` followed by several commands, only the commands typed by hand ran; one login attempt failed, and a later `su - user2` ended up nested inside `user1`'s session.
+- **Cause:** `su` reads the password from the terminal and discards typed-ahead input, so the rest of the paste is lost; a pasted line can even be taken as the password.
+- **Rule:** one command per `su`: `su - user1 -c 'cmd1; cmd2'`. Check `whoami` when the prompt looks unexpected.
+
 ## Storage
 
 ### Disk names changed between boots

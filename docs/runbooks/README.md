@@ -28,5 +28,6 @@ Run them in this order; each one builds on the state left by the previous one.
 | Order | Runbook | Lab | VMs | Snapshot before |
 |---|---|---|---|---|
 | 1 | [Users, groups, password aging and sudo](users-and-groups.md) | LNX-45 | node1 | `pre-w02` |
+| 2 | [Default permissions, shared directories, permission problems](permissions.md) | LNX-46 | node1 | (continues from 1) |
 
 Snapshots are listed in [lab setup](../lab-setup.md#snapshots).
