@@ -133,6 +133,32 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** a local mount had failed first and sent the system to emergency mode, which does not start the network; the NFS mount then failed too.
 - **Rule:** read `journalctl -xb` for the first failure; do not trust the last line on the console.
 
+## SSH
+
+### Key refused because `~/.ssh` was writable by others
+
+- **Symptom:** with the correct key installed, `ssh -o PreferredAuthentications=publickey node2` failed with `Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password)`.
+- **Cause:** `sshd` logged `Authentication refused: bad ownership or modes for directory /home/apantoja/.ssh` (`StrictModes yes`, after `chmod 777 ~/.ssh`).
+- **Rule:** the client message never says why; read `journalctl -u sshd` on the server. Keep `~/.ssh` at 700 and `authorized_keys` at 600.
+
+### Commands run in the wrong shell
+
+- **Symptom:** `eval "$(ssh-agent -s)"` failed with `eval` not recognised and `ssh-add` said `Error connecting to agent`; later an `scp` asked for a password and could not find `~/xfer`.
+- **Cause:** the first ran in Windows PowerShell (`PS C:\...`), the second on `node2` instead of `node1`. The agent and the files live in the `node1` shell.
+- **Rule:** read the prompt before pasting. The `node1` alias exists only in the Windows SSH config, so `ssh node1` from inside `node2` fails with `Could not resolve hostname`.
+
+### `node2` unknown to `node1`, and `rsync` missing
+
+- **Symptom:** `getent hosts node2` on `node1` returned nothing; `rsync` was `command not found` on `node1`.
+- **Fix:** add `10.10.10.4 node2` to `/etc/hosts` on `node1`; install `rsync` on both VMs (it needs a process at each end).
+- **Lesson:** a lab VM does not know the other VM by name until `/etc/hosts` or DNS says so, and a minimal install lacks some everyday tools.
+
+### Both VMs present the same SSH host key
+
+- **Observation:** the host-key fingerprint shown when connecting to `node1` and to `node2` was the same (`SHA256:oi3MHL...`).
+- **Cause (likely):** both were cloned from the same template without regenerating the host keys.
+- **Lesson:** regenerate host keys on a clone (remove `/etc/ssh/ssh_host_*`, then `ssh-keygen -A` and restart `sshd`) so each host has its own identity. Not done in this lab.
+
 ## VirtualBox
 
 ### VM would not resume: `Failed to load unit 'vga'`
