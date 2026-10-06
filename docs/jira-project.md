@@ -74,7 +74,7 @@ The status **category** is what reports use (burndown, velocity, `statusCategory
 | Back to ready | In Lab | Ready | |
 | Document | In Lab | Documenting | |
 | Back to lab | Documenting | In Lab | |
-| Block | In Lab, Documenting | Blocked | Clear Resolution |
+| Block | In Lab, Documenting | Blocked | Clear Resolution; shows `LNX: Block Screen` (asks for the blocked reason) |
 | Resume lab | Blocked | In Lab | |
 | Resume docs | Blocked | Documenting | |
 | Finish | Documenting | Done | Resolution = Done |
@@ -101,6 +101,61 @@ Quick filters:
 |---|---|
 | Hide cancelled | `status != Cancelled` |
 | Blocked | `status = Blocked OR (issueLinkType = "is blocked by" AND statusCategory != Done)` |
+
+## Custom fields and screens (W02, LNX-44)
+
+Three custom fields record lab context on the work items, and separate screens decide where each one appears.
+
+### Custom fields
+
+| Field | Type | Purpose |
+|---|---|---|
+| `Lab VM` | Select list (multiple choices): `node1`, `node2`, `rhel9-template`, `rhel10-template` | Which VMs a lab touches |
+| `Snapshot before` | Short text | Name of the snapshot taken before the lab, for rollback |
+| `Blocked reason` | Paragraph | Why the work item is blocked |
+
+All three keep Jira's default **global context**. Visibility is controlled by screens, not by contexts (see [Administration lessons](#administration-lessons)).
+
+### Screens
+
+| Screen | Fields | Used for |
+|---|---|---|
+| `LNX: Create Screen` | Summary, Parent, Description, Story Points, `Lab VM` (Work type is always shown by Jira) | Create |
+| `LNX: Edit Screen` | Everything on `LNX: Scrum Default Issue Screen`, plus `Lab VM`, `Snapshot before`, `Blocked reason` at the end | Edit and View |
+| `LNX: Block Screen` | `Blocked reason` (Jira adds the Comment box on transition screens) | *Block* transition |
+
+`LNX: Edit Screen` is also the View screen, so existing work items keep all their data and the blocked reason stays visible on the item.
+
+### Screen scheme and mapping
+
+| Operation | Screen |
+|---|---|
+| Default | `LNX: Edit Screen` |
+| Create | `LNX: Create Screen` |
+| Edit | `LNX: Edit Screen` |
+| View | `LNX: Edit Screen` |
+
+This is **`LNX: Screen Scheme`**. In the work type screen scheme `LNX: Scrum Issue Type Screen Scheme` it is mapped to **Lab** and **Task**. Bug and Epic keep their own schemes, and the remaining work types (Lab Issue, Study, Sub-task) fall back to the Default row, `LNX: Scrum Default Screen Scheme`. Task therefore shows the lab fields too, empty.
+
+The *Block* transition of `LNX: Lab Workflow` uses a **Show a screen** rule (inside the transition's rules panel, not a "Screen" setting) pointing to `LNX: Block Screen`.
+
+### Resulting hierarchy
+
+```
+field -> context -> field scheme -> screen -> screen scheme -> work type screen scheme -> project
+workflow transition -> screen (Show a screen rule)
+```
+
+### Test results (test item LNX-53, cancelled afterwards)
+
+| Test | Result |
+|---|---|
+| Create a Lab | Dialog shows the work type, Summary, Description, Parent, Story Points and `Lab VM` (after the field scheme fix below) |
+| Edit the item | `Snapshot before` and `Blocked reason` appear and save |
+| Block from In Lab | Dialog asks for `Blocked reason` and a comment; the reason shows on the item |
+| Existing item (LNX-47) | Description and Story Points still show |
+
+Note: `Blocked reason` shows above the *Details* section, not inside it. Placement inside *Details* is controlled by the work type layout (Project settings > Work types > Lab > Layout), which was left unchanged.
 
 ## Jira skill roadmap
 
@@ -171,3 +226,26 @@ A global transition (from *Any status*) is convenient but also applies to status
 ### Bulk changes
 
 Bulk edits and moves (for example changing several items from Task to Lab) are done from the work item search with JQL, not from the backlog.
+
+### Hiding custom fields: contexts no longer work (CHANGE-3019)
+
+Jira Cloud no longer lets a custom field's global context be deleted or restricted to specific work types or projects (CHANGE-3019). Adding an LNX-only context would not have hidden the fields from other projects, so it was skipped on purpose. The three fields keep their global context and **screens control visibility**: they are only added to `LNX:` screens, so no other project shows them.
+
+### A field on the screen can still be missing (field scheme)
+
+- **Symptom:** `Lab VM` was on `LNX: Create Screen`, the screen was mapped correctly, and the context was global, yet the create dialog said the field "isn't present on the create screen".
+- **Cause:** the field was not part of the project's **field scheme** (Settings > Work items > Field schemes > Default Field Scheme).
+- **Fix:** add it there with **Add fields**.
+- **Rule:** a field needs to be in the field scheme **and** on the screen. Check in this order when a field does not show: context, field scheme, screen, screen scheme mapping, then caching (Ctrl+F5).
+
+### Work type is not a screen field
+
+*Work type* does not appear in a screen's field list in Jira Cloud. The create dialog always shows it, so a "Create Screen" lists one field fewer than the dialog.
+
+### Transition screens
+
+In the new workflow editor, a transition's screen is set with the rule **Show a screen** (Rules panel, next to *Request input* and *Validate details*); there is no separate "Screen" setting. The transition only appears from the statuses it is defined for: *Block* is not offered from Backlog or Ready, so testing it means moving the item through *Refine*, *Start lab* and then *Block*.
+
+### Copying screens
+
+A copied screen keeps the name `Copy of ...` until it is renamed. Rename it right away: trimming fields from a copy that had already been renamed to `LNX: Edit Screen` left that screen without its inherited fields and meant building it again from a fresh copy of `LNX: Scrum Default Issue Screen`.
