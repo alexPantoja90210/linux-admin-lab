@@ -6,6 +6,11 @@ Add swap space without touching the existing system swap, make it persistent by 
 - **Practised in:** LNX-39, on `node1`, after the LVM lab (uses free space on `/dev/sdB` and in `vg_lab`).
 - **Reset:** restore the `pre-storage` snapshot (see [lab setup](../lab-setup.md#resetting-the-practice-disks)).
 
+## Prerequisites
+
+- The [LVM runbook](lvm.md) completed on `node1`: `vg_lab` exists with at least 256 MiB free, and `/dev/sdB` has free space after its 1 GiB LVM partition.
+- An SSH session as a user with `sudo`.
+
 ## 0. Current state
 
 ```bash
@@ -94,16 +99,27 @@ NAME      TYPE      SIZE USED PRIO
 /dev/dm-4 partition 256M   0B    5
 ```
 
-## Removing a swap area
+## Rollback
+
+- **Whole exercise:** power off `node1` and restore `pre-storage` (this also undoes the LVM lab).
+- **By hand**, both new swaps:
 
 ```bash
-sudo swapoff /dev/vg_lab/lv_swap
-# remove its line from /etc/fstab, then:
+sudo swapoff /dev/sdB2 /dev/vg_lab/lv_swap
+sudo cp -p /etc/fstab.bak /etc/fstab         # backup from step 3
 sudo systemctl daemon-reload
+sudo findmnt --verify
 sudo lvremove /dev/vg_lab/lv_swap
+sudo parted /dev/sdB rm 2
+sudo swapon --show                           # only the system swap left
 ```
 
 Never `swapoff` the only swap on a system under memory pressure: the pages in it must fit back in RAM.
+
+## Mistakes made
+
+- **Stray `$` in the `fstab` line.** `echo "$UUID=$P_UUID ..."` wrote a line starting with `=`. `findmnt --verify` caught it before the reboot (`[E] unsupported source tag`); fixed with `sudo sed -i 's/^=/UUID=/' /etc/fstab`.
+- **Expected `lv_swap` on the first PV.** LVM put it whole on `/dev/sdB1` because 32 extents did not fit in the 30 left on `/dev/sdA`. See the allocation note in the [LVM runbook](lvm.md#6-inspect).
 
 ## Quick reference
 

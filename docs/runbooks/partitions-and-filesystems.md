@@ -6,6 +6,12 @@ Create GPT partitions, format them as XFS, ext4 and VFAT, mount them persistentl
 - **Practised in:** LNX-37, on `node1`.
 - **Reset:** restore the `pre-storage` snapshot (see [lab setup](../lab-setup.md#resetting-the-practice-disks)).
 
+## Prerequisites
+
+- `node1` with two empty 2 GB practice disks and the `pre-storage` snapshot ([lab setup, section 9](../lab-setup.md#9-practice-disks)).
+- An SSH session as a user with `sudo` (the console cannot paste).
+- `dosfstools` installed for VFAT: `sudo dnf -y install dosfstools`.
+
 ## 0. Identify the disk
 
 ```bash
@@ -103,6 +109,27 @@ sudo parted /dev/sdX rm 3
 sudo rmdir /mnt/vfat
 lsblk /dev/sdX
 ```
+
+## Rollback
+
+- **Whole exercise:** power off `node1` and restore `pre-storage`.
+- **By hand**, for every file system created here:
+
+```bash
+sudo umount /mnt/xfs /mnt/ext4 /mnt/vfat
+sudo cp -p /etc/fstab.bak /etc/fstab         # backup from step 4
+sudo systemctl daemon-reload
+sudo findmnt --verify
+sudo wipefs -a /dev/sdX                      # removes the partition table; check the disk with lsblk first
+sudo rmdir /mnt/xfs /mnt/ext4 /mnt/vfat
+```
+
+Restore `fstab` **before** wiping the disk, never after: otherwise the next boot looks for file systems that no longer exist.
+
+## Mistakes made
+
+- **`sdX` names changed across the reboot** (`sdb` became `sdc`). Nothing broke, because `fstab` used UUID and label. Identify disks by size and content every time ([lessons learned](../lessons-learned.md#disk-names-changed-between-boots)).
+- **Mount by label was missing from the original plan.** The EX200 self-assessment showed it; the ext4 mount was switched to `LABEL=`.
 
 ## Quick reference
 

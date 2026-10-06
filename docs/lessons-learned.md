@@ -77,6 +77,24 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** the user was created in the installer without **Make this user administrator**, so it is not in the `wheel` group.
 - **Fix:** as root, `usermod -aG wheel apantoja`, then log in again. The `-a` matters: without it `-G` replaces all supplementary groups.
 
+### Forced password change fails with "Authentication token manipulation error"
+
+- **Symptom:** after `chage -d 0 user1`, `su - user1` accepted the password, showed `You are required to change your password immediately`, then failed with `su: Authentication token manipulation error`, twice.
+- **Cause:** the forced change asks for the **current** password a second time (`Current password:`) before the new one. It was mistyped there.
+- **Rule:** read the prompt: `Current password:` is the old one, `New password:` the new one.
+
+### `sudo rm /dir/*` removed nothing
+
+- **Symptom:** `sudo rm -f /srv/team/*` returned no error, but the files were still there.
+- **Cause:** the `*` is expanded by the calling shell, running as the normal user, before `sudo` starts. That user cannot read `/srv/team` (mode `2770`, not in the group), so the glob matched nothing and `rm` got the literal path `/srv/team/*`; `-f` hid the "No such file" error.
+- **Rule:** when the directory is not readable by you, let root expand the glob: `sudo sh -c 'rm -f /srv/team/*'`.
+
+### Commands pasted after `su` never ran
+
+- **Symptom:** after pasting `su - user1` followed by several commands, only the commands typed by hand ran; one login attempt failed, and a later `su - user2` ended up nested inside `user1`'s session.
+- **Cause:** `su` reads the password from the terminal and discards typed-ahead input, so the rest of the paste is lost; a pasted line can even be taken as the password.
+- **Rule:** one command per `su`: `su - user1 -c 'cmd1; cmd2'`. Check `whoami` when the prompt looks unexpected.
+
 ## Storage
 
 ### Disk names changed between boots
@@ -86,6 +104,13 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Rules:**
   - Before any destructive command (`parted`, `mkfs`, `pvcreate`, `wipefs`), run `lsblk` and identify the disk by size and content, not by name. In this lab the practice disks are 2 GB and empty; the system disk is 20 GB with `/boot` and LVM.
   - Never use `/dev/sdX` in `/etc/fstab`. Use `UUID=` or `LABEL=`, which belong to the file system and do not change when the device name does.
+
+### LVM does not fill physical volumes in order
+
+- **Symptom:** the LVM runbook said new LVs are allocated on the first PV until it is full. In LNX-39 a 256 MiB `lv_swap` went entirely onto the second PV, `/dev/sdB1`.
+- **Cause:** with the default `normal` allocation policy, LVM places a new LV on a single PV that can hold it whole when one exists. 32 extents did not fit in the 30 left on `/dev/sdA`, so it used `/dev/sdB1` instead of splitting the LV.
+- **Fix:** runbook corrected (commit 838ab07).
+- **Rule:** do not document how a tool behaves from one observation. Check where extents went with `lvs -o +devices` or `pvdisplay -m`.
 
 ### Stray `$` in an `fstab` line
 

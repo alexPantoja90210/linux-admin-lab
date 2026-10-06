@@ -8,6 +8,14 @@ Export directories over NFS from one node, mount one of them permanently on anot
 
 Node addresses come from DHCP: check them with `ip -4 -br addr` before starting.
 
+## Prerequisites
+
+- `node1` and `node2` running on `labnet`, each reachable over SSH as a user with `sudo`.
+- The same user with the same UID on both nodes (`id apantoja` shows 1000 on both clones). Replace `apantoja` below with your lab user.
+- Both nodes registered, so `dnf` can install `nfs-utils` and `autofs`.
+- Snapshots taken: `pre-nfs` on node2, `post-swap` on node1.
+- firewalld running and SELinux `Enforcing` on both nodes; this runbook keeps them that way.
+
 ## Server (node2)
 
 ### 1. Directories and exports
@@ -16,6 +24,8 @@ Node addresses come from DHCP: check them with `ip -4 -br addr` before starting.
 rpm -q nfs-utils || sudo dnf -y install nfs-utils
 sudo mkdir -p /srv/nfs/shared /srv/nfs/home/user1
 sudo chown apantoja:apantoja /srv/nfs/shared /srv/nfs/home/user1
+echo "shared export on node2"  > /srv/nfs/shared/readme.txt       # test files read by the client
+echo "user1 export on node2"   > /srv/nfs/home/user1/readme.txt
 
 sudo tee /etc/exports <<'EOF'
 /srv/nfs/shared      10.10.10.0/24(rw,sync)
@@ -123,6 +133,33 @@ cat /remote/user1/readme.txt
 Result in the lab: `/mnt/shared` mounted as nfs4 at boot, autofs active, `/remote/user1` mounted on access.
 
 **Boot order:** start node2 before node1. The default NFS mount option is `hard`: if the server is down, processes reading the mount wait until it returns, and commands such as `df` or `ls` on the mount point appear to hang.
+
+## Rollback
+
+- **Whole exercise:** power off both nodes, restore `post-swap` on node1 and `pre-nfs` on node2.
+- **By hand, client first** (a client with the server gone can hang on the `hard` mount):
+
+```bash
+# node1
+sudo umount /mnt/shared
+sudo sed -i '\|10.10.10.4:/srv/nfs/shared|d' /etc/fstab
+sudo systemctl daemon-reload
+sudo findmnt --verify
+sudo systemctl disable --now autofs
+sudo rm /etc/auto.master.d/remote.autofs /etc/auto.remote
+sudo rmdir /mnt/shared
+
+# node2
+sudo systemctl disable --now nfs-server
+sudo truncate -s 0 /etc/exports
+sudo firewall-cmd --permanent --remove-service={nfs,rpc-bind,mountd}
+sudo firewall-cmd --reload
+sudo rm -rf /srv/nfs
+```
+
+## Mistakes made
+
+None in the lab run: the static mount and autofs worked on the first try. The traps to watch, all listed above, are a space between client and options in `/etc/exports`, a missing `_netdev`, and starting node1 while node2 is down.
 
 ## Quick reference
 
