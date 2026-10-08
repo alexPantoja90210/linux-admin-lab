@@ -159,6 +159,33 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause (likely):** both were cloned from the same template without regenerating the host keys.
 - **Lesson:** regenerate host keys on a clone (remove `/etc/ssh/ssh_host_*`, then `ssh-keygen -A` and restart `sshd`) so each host has its own identity. Not done in this lab.
 
+## systemd and scheduling
+
+### Enabled and active are separate states
+
+- **Symptom:** after `dnf install at`, `atd` was `enabled` but `inactive`; after `disable` it stayed `active`.
+- **Lesson:** `enable`/`disable` change what happens at boot, `start`/`stop` change what runs now. `enable --now` does both. Check both with `is-enabled` and `is-active`.
+
+### `reload` failed on `atd`
+
+- **Symptom:** `Job type reload is not applicable for unit atd.service`.
+- **Cause:** the unit defines no reload action (`systemctl show -p CanReload`: `atd` and `chronyd` `no`, `sshd` `yes`).
+- **Lesson:** use `restart` when a unit cannot reload.
+
+### `journalctl -u crond` hid the user entry
+
+- **Symptom:** only the `(root)` `CMD` line appeared; the `(apantoja)` one was missing although its file was written.
+- **Fix:** `journalctl --since "15 minutes ago" | grep CMD` showed both. The cause was not verified.
+
+### Wrong job removed with `atrm`
+
+- **Lesson:** read the job number from `atq` before `atrm`, and use a new output file name per attempt so an old file is not mistaken for proof.
+
+### Root-owned files in `/tmp`
+
+- **Symptom:** `rm: cannot remove ... Operation not permitted`.
+- **Cause:** root wrote them and `/tmp` has the sticky bit. Use `sudo rm`.
+
 ## VirtualBox
 
 ### VM would not resume: `Failed to load unit 'vga'`
