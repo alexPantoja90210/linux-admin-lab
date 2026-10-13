@@ -192,6 +192,8 @@ Start the VMs without a console window:
 
 The forwarding rules point to the DHCP addresses. If a VM gets a different address, SSH to it fails; check with `ip -4 -br addr` on the console and update the rule. Static addressing is planned in W03 (LNX-30).
 
+**State on 2026-10-13:** `node1` runs with a fixed `10.10.10.3/24` (set with `nmcli`, see [lessons learned](lessons-learned.md#node1-booted-without-ipv4)) after it booted without a DHCP address; `node2` still uses DHCP.
+
 ## 9. Practice disks
 
 The storage labs destroy and rebuild disks, so `node1` has two empty 2 GB disks next to the system disk, and a snapshot taken right after attaching them. Restoring `pre-storage` returns both disks to empty.

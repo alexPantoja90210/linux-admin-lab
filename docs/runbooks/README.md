@@ -31,5 +31,6 @@ Run them in this order; each one builds on the state left by the previous one.
 | 2 | [Default permissions, shared directories, permission problems](permissions.md) | LNX-46 | node1 | (continues from 1) |
 | 3 | [SSH key authentication and secure file transfer](ssh-keys-and-file-transfer.md) | LNX-47 | node1 client, node2 server | none needed |
 | 4 | [systemd services, targets, at, cron, timers and chrony](systemd-services-and-scheduling.md) | LNX-48 | node1 (node2 running) | `pre-systemd` |
+| 5 | [Processes, tuned profiles, logs and the persistent journal](processes-tuned-logs-journal.md) | LNX-49 | node1 (node2 running) | `pre-processes` |
 
 Snapshots are listed in [lab setup](../lab-setup.md#snapshots).

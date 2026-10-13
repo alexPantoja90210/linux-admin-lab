@@ -186,6 +186,41 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Symptom:** `rm: cannot remove ... Operation not permitted`.
 - **Cause:** root wrote them and `/tmp` has the sticky bit. Use `sudo rm`.
 
+## Processes, tuning and logs
+
+### `pgrep dd` matched kernel threads
+
+- **Symptom:** `pgrep dd` printed `2` and `82` with no `dd` running.
+- **Cause:** `pgrep` and `pkill` match the pattern anywhere in the process name; `kthreadd` and `kworker/R-ipv6_addrconf` contain `dd`.
+- **Lesson:** use `-x` (exact name): `pgrep -x dd`, `pkill -u USER -x dd`. Never `pkill -u USER` alone: it kills your own SSH session.
+
+### `ps` `%CPU` is an average, not the current use
+
+- **Symptom:** a new `dd` showed `0.0` and the others `72` and `28` right after a `renice`.
+- **Lesson:** `ps` divides CPU time by the process lifetime. Use the `NI` column to prove a priority change and `top` for live use.
+
+### Only root can lower a nice value
+
+- **Symptom:** `renice -n 0 -p PID` as a normal user: `Permission denied`; `renice -n 15` had worked.
+- **Lesson:** a normal user can raise the nice value of a process but not lower it again; use `sudo renice`.
+
+### `tuned-adm verify` fails inside a VM
+
+- **Symptom:** `Verification failed, current system settings differ from the preset profile`; restarting `tuned` did not help.
+- **Cause:** the log shows only `device cpu0: 'boost' = 'None', expected '1'` (same for `cpu1`): the VM has no CPU boost control.
+- **Lesson:** read `/var/log/tuned/tuned.log` before trusting or fixing a `verify` failure. `tuned-adm active` is the check that matters here.
+
+### `journalctl` as a normal user: insufficient permissions
+
+- **Symptom:** `No journal files were opened due to insufficient permissions` right after `Storage=persistent` created `/var/log/journal`.
+- **Fix:** use `sudo journalctl`; `sudo systemd-tmpfiles --create --prefix /var/log/journal` applies the read permissions. The cause of the missing permissions was assumed, not verified.
+
+### `enable --now tuned` ran before `dnf` finished
+
+- **Symptom:** `Unit tuned.service does not exist`, `is-enabled` said `not-found`.
+- **Cause:** `dnf` was still waiting for the `y` confirmation (68 packages, 42 MB download).
+- **Lesson:** wait for `Complete!`, and run `dnf` without `-y` to read the download size first.
+
 ## VirtualBox
 
 ### VM would not resume: `Failed to load unit 'vga'`
@@ -194,6 +229,42 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** the VM had a saved state (from closing its window with "Save the machine state") that could not be restored.
 - **Fix:** **Discard** the saved state (like pulling the power cord; disks are kept), then start the VM. The first boot after that hung in early kernel messages for over 10 minutes with one host thread at 100%; **Machine > Reset** fixed it and the next boot took seconds.
 - **Rule:** to close the console of a running VM, choose **Continue running in the background**, never "Save the machine state". Open it again with **Show**.
+
+### VM stopped for about 38 minutes (cause unknown)
+
+- **Symptom:** while two `dd` loads were running, SSH to `node1` hung (no password prompt), the console showed `login:` but did not react to the keyboard. `Machine > Reset` brought it back.
+- **Evidence:** after the reset the clock was 2268 s (about 38 minutes) behind; `chronyd` logged `System clock wrong by 2268.215673 seconds` and stepped it. So the VM was stopped, not only SSH.
+- **Ruled out:** a laptop sleep: the Windows System log had no `Kernel-Power` events (neither 42/107 nor 506/507) in the previous 3 hours.
+- **Not found:** the cause. The journal was volatile then, so the logs of that boot were lost. Persistent journal is on now, and loads run under `timeout`.
+- **Related:** the journal timestamps of a boot that starts with a late clock are not real until the step; boots can look overlapped or out of order in `--list-boots`.
+
+### node1 booted without IPv4
+
+- **Symptom:** `ssh node1` gave `Connection timed out during banner exchange` while `Test-NetConnection 127.0.0.1 -Port 2221` said `True`. `ssh node2` worked. On the console `sshd` was active and listening, but `enp0s3` was `UP` with only an `fe80::` address; NetworkManager showed `activating`.
+- **Why the port test misleads:** VirtualBox accepts the TCP connection on the laptop even when nothing answers inside the VM. Test the SSH banner, not the port.
+- **Journal:** `NetworkManager-wait-online.service: Failed to start` and `Failed to mount mnt-shared.mount` about 70 seconds after boot, before any change by hand.
+- **Did not help:** `nmcli connection up enp0s3` (timeout 90 s), `VBoxManage dhcpserver restart --network=labnet`, `VBoxManage controlvm node1 setlinkstate1 off/on`. A fixed address (`ipv4.method manual 10.10.10.3/24`) also failed: `IP configuration could not be reserved`.
+- **Clue:** from `node2`, `ping 10.10.10.3` answered and `ip neigh show 10.10.10.3` gave the MAC `52:54:00:12:35:00`, not node1's `08:00:27:9e:5c:52`. NetworkManager's address-conflict check was refusing the address, and something other than `node1` held it.
+- **Fix:** restart the NAT network service, then bring the connection up:
+
+```powershell
+& $vbm natnetwork stop --netname labnet
+& $vbm natnetwork start --netname labnet
+```
+
+```bash
+sudo nmcli connection up enp0s3
+```
+
+- **Not known:** why `labnet` answered for `10.10.10.3`. That MAC prefix looks like VirtualBox's internal NAT engine (from memory, not verified). The `stop` and `start` printed nothing in the log of this session, so the order of effects is as reported, not independently checked.
+- **State left:** `node1` has a **fixed** `10.10.10.3/24` (gateway `10.10.10.1`, DNS `192.168.100.1`, from `VBoxManage list dhcpservers`) instead of DHCP. Go back to DHCP with:
+
+```bash
+sudo nmcli connection modify enp0s3 ipv4.method auto ipv4.addresses "" ipv4.gateway "" ipv4.dns ""
+sudo nmcli connection up enp0s3
+```
+
+Static addressing for both VMs is planned in W03 (LNX-30).
 
 ## Network testing
 
