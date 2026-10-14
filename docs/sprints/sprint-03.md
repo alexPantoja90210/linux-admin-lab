@@ -4,7 +4,7 @@
 - **Goal:** Users, permissions, SSH keys, systemd and SELinux objectives practised and documented.
 - **Epic:** LNX-3 (W02)
 - **Planned:** 21 story points, 10 work items
-- **Result:** 17 of 21 points done (81%), 8 of 10 work items. LNX-51 and LNX-52 (2 points each) carried over to the next sprint.
+- **Result:** 17 of 21 points done (81%), 8 of 10 work items. LNX-51 and LNX-52 (2 points each) carried over to Sprint 4.
 
 ## Work items
 
@@ -48,7 +48,7 @@ The sprint was **not completed, on purpose**: I let it end with two items open i
 |---|---|
 | LNX-43 to LNX-50 (17 points) | LNX-51 Drill: diagnose and fix SELinux denials (2); LNX-52 W02 runbooks in the repo (2) |
 
-- **Carry-over decision (2026-10-13):** both items move to the next sprint unchanged. Nothing is cancelled or re-estimated.
+- **Carry-over decision (2026-10-13):** both items move to Sprint 4 unchanged. Nothing is cancelled or re-estimated.
 - LNX-52 is partly done in practice: the runbooks for LNX-48, LNX-49 and LNX-50 are already in [`docs/runbooks/`](../runbooks/README.md). What remains is checking the whole W02 set and the index.
 - LNX-51 depends on the state left by LNX-50 on node2 (snapshot `pre-selinux`).
 - Still open from Sprint 2: re-rate the storage objectives.
