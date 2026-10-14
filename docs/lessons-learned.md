@@ -221,6 +221,31 @@ Context: freeing ~99 GB on the host by moving screen recordings to an external U
 - **Cause:** `dnf` was still waiting for the `y` confirmation (68 packages, 42 MB download).
 - **Lesson:** wait for `Complete!`, and run `dnf` without `-y` to read the download size first.
 
+## SELinux
+
+### `semanage port -l` as a normal user
+
+- **Symptom:** `ValueError: SELinux policy is not managed or store cannot be accessed`.
+- **Cause:** `semanage` reads the policy store, which needs root, also to list.
+- **Lesson:** `sudo semanage ... -l`. The error did not mean that the earlier `semanage port -a` had failed.
+
+### A new directory under `/srv` is `var_t`, and `httpd` answers 403
+
+- **Symptom:** `/srv/web` returned `403`; `ausearch` showed `denied { getattr }` from `httpd_t` on a `var_t` file.
+- **Fix:** persistent rule with `semanage fcontext -a -t httpd_sys_content_t "/srv/web(/.*)?"`, then `restorecon -Rv`. `chcon` alone is lost at the next `restorecon` or relabel.
+
+### `httpd` could not listen on port 82
+
+- **Symptom:** `(13)Permission denied: AH00072: make_sock: could not bind to address 0.0.0.0:82`.
+- **Cause:** the AVC `denied { name_bind }` names the port type `reserved_port_t`.
+- **Fix:** `semanage port -a -t http_port_t -p tcp 82`. No `setenforce 0`.
+
+### `public_html` had the right label and still 403
+
+- **Symptom:** `/~user1/` returned `403`; the directory was already `httpd_user_content_t`.
+- **Cause:** the policy rule is gated by the boolean `httpd_enable_homedirs` (off). I had guessed a wrong label.
+- **Fix:** `setsebool -P httpd_enable_homedirs on`; `semanage boolean -l -C` shows `(on , on)`, current and persistent.
+
 ## VirtualBox
 
 ### VM would not resume: `Failed to load unit 'vga'`
